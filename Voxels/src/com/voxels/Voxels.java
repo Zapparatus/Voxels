@@ -206,8 +206,11 @@ public class Voxels {
 		// Load all textures
 		GraphicsRoutines.loadTextures();
 		
+		// Create a player
+		player = new Player();
+		
 		// Create a test (spawn) Chunk
-		spawn = new Chunk(new Vec3f(0, 0, 100));
+		spawn = new Chunk(new Vec3f(0, Chunk.getSize() / 2 + player.getHeight(), 0));
 		
 		// Loop through the Blocks in the Chunk and create a test biome
 		for (int x = 0; x < Chunk.CHUNK_SIZE; ++x) {
@@ -229,8 +232,6 @@ public class Voxels {
 		
 		// Update the Chunk (update display list)
 		spawn.update();
-		
-		player = new Player();
 	}
 	
 	public void loop() {
@@ -259,8 +260,8 @@ public class Voxels {
 		glLoadIdentity();
 		
 		// Rotate everything according to the player's view
-		glRotatef(player.getRotation().y, 1, 0, 0);
-		glRotatef(player.getRotation().x, 0, 1, 0);
+		glRotatef(player.getRotation().x, 1, 0, 0);
+		glRotatef(player.getRotation().y, 0, 1, 0);
 		
 		// Move to the Chunk's position
 		float xPosition = player.getPosition().x - spawn.getPosition().x;
@@ -284,23 +285,23 @@ public class Voxels {
 		
 		// Move the cube based on WASD
 		if (keys[GLFW_KEY_W]) {
-			deltaPosition.z += speed * Math.cos(player.getRotation().x / 180 * Math.PI);
-			deltaPosition.x -= speed * Math.sin(player.getRotation().x / 180 * Math.PI);
+			deltaPosition.z += speed * Math.cos(player.getRotation().y / 180 * Math.PI);
+			deltaPosition.x -= speed * Math.sin(player.getRotation().y / 180 * Math.PI);
 		}
 		
 		if (keys[GLFW_KEY_S]) {
-			deltaPosition.z -= speed * Math.cos(player.getRotation().x / 180 * Math.PI);
-			deltaPosition.x += speed * Math.sin(player.getRotation().x / 180 * Math.PI);
+			deltaPosition.z -= speed * Math.cos(player.getRotation().y / 180 * Math.PI);
+			deltaPosition.x += speed * Math.sin(player.getRotation().y / 180 * Math.PI);
 		}
 		
 		if (keys[GLFW_KEY_A]) {
-			deltaPosition.z += speed * Math.sin(player.getRotation().x / 180 * Math.PI);
-			deltaPosition.x += speed * Math.cos(player.getRotation().x / 180 * Math.PI);
+			deltaPosition.z += speed * Math.sin(player.getRotation().y / 180 * Math.PI);
+			deltaPosition.x += speed * Math.cos(player.getRotation().y / 180 * Math.PI);
 		}
 		
 		if (keys[GLFW_KEY_D]) {
-			deltaPosition.z -= speed * Math.sin(player.getRotation().x / 180 * Math.PI);
-			deltaPosition.x -= speed * Math.cos(player.getRotation().x / 180 * Math.PI);
+			deltaPosition.z -= speed * Math.sin(player.getRotation().y / 180 * Math.PI);
+			deltaPosition.x -= speed * Math.cos(player.getRotation().y / 180 * Math.PI);
 		}
 		
 		if (keys[GLFW_KEY_SPACE]) {
@@ -343,7 +344,7 @@ public class Voxels {
 			float deltaY = (float)y.get() - HEIGHT / 2;
 			
 			// Add rotation accordingly
-			player.addRotation(new Vec3f(deltaX, deltaY, 0));
+			player.addRotation(new Vec3f(deltaY, deltaX, 0));
 			
 			// Set the cursor position back to the center of the window
 			glfwSetCursorPos(window, WIDTH / 2, HEIGHT / 2);

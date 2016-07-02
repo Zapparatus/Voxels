@@ -3,6 +3,7 @@ package com.voxels;
 import com.sun.javafx.geom.Vec3f;
 
 public class Player {
+	private float height = Block.DEFAULT_SIZE * 2;
 	private Vec3f position = null;
 	private Vec3f rotation = null;
 	
@@ -17,6 +18,10 @@ public class Player {
 	
 	public void addRotation(Vec3f displacement) {
 		this.rotation.add(displacement);
+	}
+	
+	public float getHeight() {
+		return height;
 	}
 	
 	public Vec3f getPosition() {
