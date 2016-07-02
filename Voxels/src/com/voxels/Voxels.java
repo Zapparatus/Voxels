@@ -3,6 +3,8 @@
 package com.voxels;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
+import static org.lwjgl.glfw.GLFW.GLFW_CURSOR;
+import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_DISABLED;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
@@ -11,18 +13,24 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_1;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
 import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
 import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
 import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
+import static org.lwjgl.glfw.GLFW.glfwGetCursorPos;
+import static org.lwjgl.glfw.GLFW.glfwGetMouseButton;
 import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
 import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
 import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwSetCursorPos;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetInputMode;
 import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
@@ -52,24 +60,28 @@ import static org.lwjgl.opengl.GL11.glHint;
 import static org.lwjgl.opengl.GL11.glLoadIdentity;
 import static org.lwjgl.opengl.GL11.glMatrixMode;
 import static org.lwjgl.opengl.GL11.glPolygonMode;
+import static org.lwjgl.opengl.GL11.glRotatef;
 import static org.lwjgl.opengl.GL11.glTranslatef;
 import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+import java.nio.DoubleBuffer;
+
+import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
+import com.sun.javafx.geom.Vec3f;
 import com.voxels.Block.BlockType;
 import com.voxels.graphics.GraphicsRoutines;
 
 public class Voxels {
+	private boolean mouseLocked = false;
 	private boolean[] keys = new boolean[65536];
 	private Chunk spawn = null;
-	private float zPosition = -100;
-	private float yPosition = 0;
-	private float xPosition = 0;
 	private long window = 0;
+	private Player player = null;
 	
 	public static final int WIDTH = 800;
 	public static final int HEIGHT = 600;
@@ -195,7 +207,7 @@ public class Voxels {
 		GraphicsRoutines.loadTextures();
 		
 		// Create a test (spawn) Chunk
-		spawn = new Chunk();
+		spawn = new Chunk(new Vec3f(0, 0, 100));
 		
 		// Loop through the Blocks in the Chunk and create a test biome
 		for (int x = 0; x < Chunk.CHUNK_SIZE; ++x) {
@@ -217,6 +229,8 @@ public class Voxels {
 		
 		// Update the Chunk (update display list)
 		spawn.update();
+		
+		player = new Player();
 	}
 	
 	public void loop() {
@@ -244,7 +258,14 @@ public class Voxels {
 		glViewport(0, 0, 800, 600);
 		glLoadIdentity();
 		
+		// Rotate everything according to the player's view
+		glRotatef(player.getRotation().y, 1, 0, 0);
+		glRotatef(player.getRotation().x, 0, 1, 0);
+		
 		// Move to the Chunk's position
+		float xPosition = player.getPosition().x - spawn.getPosition().x;
+		float yPosition = player.getPosition().y - spawn.getPosition().y;
+		float zPosition = player.getPosition().z - spawn.getPosition().z;
 		glTranslatef(xPosition, yPosition, zPosition);
 		
 		// Render the spawn Chunk
@@ -258,29 +279,74 @@ public class Voxels {
 		// Poll for any window events
 		glfwPollEvents();
 
+		// Set aside a vector for the change in position
+		Vec3f deltaPosition = new Vec3f();
+		
 		// Move the cube based on WASD
 		if (keys[GLFW_KEY_W]) {
-			zPosition += speed;
+			deltaPosition.z += speed * Math.cos(player.getRotation().x / 180 * Math.PI);
+			deltaPosition.x -= speed * Math.sin(player.getRotation().x / 180 * Math.PI);
 		}
 		
 		if (keys[GLFW_KEY_S]) {
-			zPosition -= speed;
+			deltaPosition.z -= speed * Math.cos(player.getRotation().x / 180 * Math.PI);
+			deltaPosition.x += speed * Math.sin(player.getRotation().x / 180 * Math.PI);
 		}
 		
 		if (keys[GLFW_KEY_A]) {
-			xPosition += speed;
+			deltaPosition.z += speed * Math.sin(player.getRotation().x / 180 * Math.PI);
+			deltaPosition.x += speed * Math.cos(player.getRotation().x / 180 * Math.PI);
 		}
 		
 		if (keys[GLFW_KEY_D]) {
-			xPosition -= speed;
+			deltaPosition.z -= speed * Math.sin(player.getRotation().x / 180 * Math.PI);
+			deltaPosition.x -= speed * Math.cos(player.getRotation().x / 180 * Math.PI);
 		}
 		
 		if (keys[GLFW_KEY_SPACE]) {
-			yPosition -= speed;
+			deltaPosition.y -= speed;
 		}
 		
 		if (keys[GLFW_KEY_LEFT_SHIFT]) {
-			yPosition += speed;
+			deltaPosition.y += speed;
+		}
+		
+		// Change the player's position accordingly
+		player.addPosition(deltaPosition);
+		
+		// If the mouse clicks
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+			// Set the cursor position to the center of the window
+			glfwSetCursorPos(window, WIDTH / 2, HEIGHT / 2);
+			
+			// Lock the cursor
+			mouseLocked = true;
+			
+			// Hide the cursor
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+		
+		if (mouseLocked) {
+			// Set aside buffers for the mouse data
+			DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
+			DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
+			
+			// Get the current mouse position
+			glfwGetCursorPos(window, x, y);
+			
+			// Go back to the start of the buffers
+			x.rewind();
+			y.rewind();
+			
+			// Get the travel distance of the mouse
+			float deltaX = (float)x.get() - WIDTH / 2;
+			float deltaY = (float)y.get() - HEIGHT / 2;
+			
+			// Add rotation accordingly
+			player.addRotation(new Vec3f(deltaX, deltaY, 0));
+			
+			// Set the cursor position back to the center of the window
+			glfwSetCursorPos(window, WIDTH / 2, HEIGHT / 2);
 		}
 	}
 	

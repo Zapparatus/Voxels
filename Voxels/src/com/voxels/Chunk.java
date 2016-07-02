@@ -17,10 +17,11 @@ public class Chunk {
 	
 	private Block[][][] blocks = null;
 	private int displayList = 0;
-	private Vec3f position;
+	private Vec3f position = null;
 	
-	public Chunk() {
+	public Chunk(Vec3f location) {
 		blocks = new Block[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
+		position = location;
 	}
 	
 	public static float getSize() {
@@ -58,6 +59,10 @@ public class Chunk {
 	
 	public Block[][][] getBlocks() {
 		return blocks;
+	}
+	
+	public Vec3f getPosition() {
+		return position;
 	}
 	
 	public void render() {
