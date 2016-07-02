@@ -2,22 +2,73 @@
 
 package com.voxels;
 
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
+import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
+import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
+import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
+import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
+import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
+import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
+import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
+import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
+import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
+import static org.lwjgl.glfw.GLFW.glfwShowWindow;
+import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
+import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
+import static org.lwjgl.glfw.GLFW.glfwTerminate;
+import static org.lwjgl.glfw.GLFW.glfwWindowHint;
+import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11.GL_FILL;
+import static org.lwjgl.opengl.GL11.GL_FRONT_AND_BACK;
+import static org.lwjgl.opengl.GL11.GL_LEQUAL;
+import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
+import static org.lwjgl.opengl.GL11.GL_NICEST;
+import static org.lwjgl.opengl.GL11.GL_PERSPECTIVE_CORRECTION_HINT;
+import static org.lwjgl.opengl.GL11.GL_POLYGON_SMOOTH;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.glClear;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glDepthFunc;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glHint;
+import static org.lwjgl.opengl.GL11.glLoadIdentity;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glPolygonMode;
+import static org.lwjgl.opengl.GL11.glTranslatef;
+import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
+
+import com.voxels.Block.BlockType;
 import com.voxels.graphics.GraphicsRoutines;
-
-import static org.lwjgl.glfw.Callbacks.*;
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryUtil.*;
 
 public class Voxels {
 	private boolean[] keys = new boolean[65536];
+	private Chunk spawn = null;
 	private float zPosition = -100;
+	private float yPosition = 0;
 	private float xPosition = 0;
-	private int cube;
-	private int texture;
 	private long window = 0;
 	
 	public static final int WIDTH = 800;
@@ -113,7 +164,7 @@ public class Voxels {
 		glLoadIdentity();
 		
 		// Set up the projection matrix
-		GraphicsRoutines.gluPerspective(45.0f, 800f/600f, 0.1f, 1000f);
+		GraphicsRoutines.gluPerspective(90f, (float)WIDTH/HEIGHT, 1f, 10000f);
 		
 		// Change to model-view matrix mode
 		glMatrixMode(GL_MODELVIEW);
@@ -124,7 +175,7 @@ public class Voxels {
 		// Enable depth testing
 		glEnable(GL_DEPTH_TEST);
 		
-		// Set the depth testing function to less than or equal
+		// Accept fragment if depth is less than or equal to another
 		glDepthFunc(GL_LEQUAL);
 		
 		// Use the highest quality option for implementation of perspective correction
@@ -133,31 +184,42 @@ public class Voxels {
 		// Load the identity matrix
 		glLoadIdentity();
 		
+		glEnable(GL_POLYGON_SMOOTH);
+		
 		// Change how polygons are rasterized
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	
 	public void init() throws Exception {
-		// Load the sprite sheet here
-		texture = GraphicsRoutines.loadImage("/res/Blocks.png");
+		// Load all textures
+		GraphicsRoutines.loadTextures();
 		
-		// Create a display list for the dirt cube
-		cube = glGenLists(1);
+		// Create a test (spawn) Chunk
+		spawn = new Chunk();
 		
-		// Let OpenGL know we are compiling a list
-		glNewList(cube, GL_COMPILE);
+		// Loop through the Blocks in the Chunk and create a test biome
+		for (int x = 0; x < Chunk.CHUNK_SIZE; ++x) {
+			for (int y = 0; y < Chunk.CHUNK_SIZE; ++y) {
+				for (int z = 0; z < Chunk.CHUNK_SIZE; ++z) {
+					if (x == 0) {
+						// Spawn Sand to left
+						spawn.setBlock(x, y, z, new Block(spawn, null, BlockType.Sand));
+					} else if (y == 0) {
+						// Spawn Grass on top
+						spawn.setBlock(x, y, z, new Block(spawn, null, BlockType.Grass));
+					} else {
+						// Spawn Dirt below
+						spawn.setBlock(x, y, z, new Block(spawn, null, BlockType.Dirt));
+					}
+				}
+			}
+		}
 		
-		// Perform commands for the list
-		renderCube();
-		
-		// End the list
-		glEndList();
+		// Update the Chunk (update display list)
+		spawn.update();
 	}
 	
 	public void loop() {
-		// Make the OpenGL bindings available for use (LWJGL required)
-		//GL.createCapabilities();
-		
 		// Enable 2d textures
 		glEnable(GL_TEXTURE_2D);
 		
@@ -182,45 +244,14 @@ public class Voxels {
 		glViewport(0, 0, 800, 600);
 		glLoadIdentity();
 		
-		// Move to the cube's position
-		glTranslatef(xPosition, 0, zPosition);
+		// Move to the Chunk's position
+		glTranslatef(xPosition, yPosition, zPosition);
 		
-		// Draw a cube
-		glCallList(cube);
+		// Render the spawn Chunk
+		spawn.render();
 		
 		// Swap the buffers
 		glfwSwapBuffers(window);
-	}
-	
-	// Render a cube
-	private void renderCube() {
-		// Bind the sprite sheet
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-		
-		// Begin drawing GL_QUADS
-		glBegin(GL_QUADS);
-		
-		// Top left vertex
-		glTexCoord2f(0.25f, 0);
-		glVertex3f(-1, 1, 1);
-		
-		// Top right vertex
-		glTexCoord2f(0.5f, 0);
-		glVertex3f(1, 1, 1);
-		
-		// Bottom right vertex
-		glTexCoord2f(0.5f, 0.25f);
-		glVertex3f(1, -1, 1);
-		
-		// Bottom left vertex
-		glTexCoord2f(0.25f, 0.25f);
-		glVertex3f(-1, -1, 1);
-		
-		// Stop drawing GL_QUADS
-		glEnd();
-		
-		// Stop using the sprite sheet texture
-		GL11.glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	
 	public void update() {
@@ -242,6 +273,14 @@ public class Voxels {
 		
 		if (keys[GLFW_KEY_D]) {
 			xPosition -= speed;
+		}
+		
+		if (keys[GLFW_KEY_SPACE]) {
+			yPosition -= speed;
+		}
+		
+		if (keys[GLFW_KEY_LEFT_SHIFT]) {
+			yPosition += speed;
 		}
 	}
 	
