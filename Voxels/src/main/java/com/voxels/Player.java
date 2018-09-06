@@ -7,16 +7,16 @@ public class Player {
 	private Vec3f position = null;
 	private Vec3f rotation = null;
 	
-	public Player() {
+	Player() {
 		position = new Vec3f();
 		rotation = new Vec3f();
 	}
 	
-	public void addPosition(Vec3f displacement) {
+	void addPosition(Vec3f displacement) {
 		this.position.add(displacement);
 	}
 	
-	public void addRotation(Vec3f displacement) {
+	void addRotation(Vec3f displacement) {
 		this.rotation.add(displacement);
 	}
 	
@@ -24,11 +24,11 @@ public class Player {
 		return height;
 	}
 	
-	public Vec3f getPosition() {
+	Vec3f getPosition() {
 		return position;
 	}
 	
-	public Vec3f getRotation() {
+	Vec3f getRotation() {
 		return rotation;
 	}
 	
@@ -36,7 +36,7 @@ public class Player {
 		this.position = position;
 	}
 	
-	public void setRotation(Vec3f rotation) {
+	void setRotation(Vec3f rotation) {
 		this.rotation = rotation;
 	}
 }

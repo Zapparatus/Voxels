@@ -3,69 +3,12 @@
 package com.voxels;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
-import static org.lwjgl.glfw.GLFW.GLFW_CURSOR;
-import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_DISABLED;
-import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_1;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
-import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
-import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
-import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
-import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
-import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
-import static org.lwjgl.glfw.GLFW.glfwGetCursorPos;
-import static org.lwjgl.glfw.GLFW.glfwGetMouseButton;
-import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
-import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
-import static org.lwjgl.glfw.GLFW.glfwInit;
-import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
-import static org.lwjgl.glfw.GLFW.glfwPollEvents;
-import static org.lwjgl.glfw.GLFW.glfwSetCursorPos;
-import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetInputMode;
-import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
-import static org.lwjgl.glfw.GLFW.glfwShowWindow;
-import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
-import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
-import static org.lwjgl.glfw.GLFW.glfwTerminate;
-import static org.lwjgl.glfw.GLFW.glfwWindowHint;
-import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_FILL;
-import static org.lwjgl.opengl.GL11.GL_FRONT_AND_BACK;
-import static org.lwjgl.opengl.GL11.GL_LEQUAL;
-import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
-import static org.lwjgl.opengl.GL11.GL_NICEST;
-import static org.lwjgl.opengl.GL11.GL_PERSPECTIVE_CORRECTION_HINT;
-import static org.lwjgl.opengl.GL11.GL_POLYGON_SMOOTH;
-import static org.lwjgl.opengl.GL11.GL_PROJECTION;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glDepthFunc;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glHint;
-import static org.lwjgl.opengl.GL11.glLoadIdentity;
-import static org.lwjgl.opengl.GL11.glMatrixMode;
-import static org.lwjgl.opengl.GL11.glPolygonMode;
-import static org.lwjgl.opengl.GL11.glRotatef;
-import static org.lwjgl.opengl.GL11.glTranslatef;
-import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -75,6 +18,7 @@ import org.lwjgl.opengl.GL;
 import com.sun.javafx.geom.Vec3f;
 import com.voxels.Block.BlockType;
 import com.voxels.graphics.GraphicsRoutines;
+import org.lwjgl.opengl.GL11;
 
 public class Voxels {
 	private boolean mouseLocked = false;
@@ -83,15 +27,15 @@ public class Voxels {
 	private long window = 0;
 	private Player player = null;
 	
-	public static final int WIDTH = 800;
-	public static final int HEIGHT = 600;
-	public static final int speed = 1;
+	private static final int WIDTH = 800;
+    private static final int HEIGHT = 600;
+    private static final int speed = 1;
 	
-	public Voxels() {
+	private Voxels() {
 		
 	}
 	
-	public void run() {
+	private void run() {
 		try {
 			// Initialize OpenGL
 			initOpenGL();
@@ -120,7 +64,7 @@ public class Voxels {
 		}
 	}
 	
-	public void initOpenGL() throws Exception {
+	private void initOpenGL() {
 		// Set System.err as the output for error messages
 		GLFWErrorCallback.createPrint(System.err).set();
 		
@@ -174,7 +118,7 @@ public class Voxels {
 		glLoadIdentity();
 		
 		// Set up the projection matrix
-		GraphicsRoutines.gluPerspective(90f, (float)WIDTH/HEIGHT, 1f, 10000f);
+		GraphicsRoutines.gluPerspective(80f, (float)WIDTH/HEIGHT, 1f, 10000f);
 		
 		// Change to model-view matrix mode
 		glMatrixMode(GL_MODELVIEW);
@@ -200,7 +144,7 @@ public class Voxels {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 	
-	public void init() throws Exception {
+	private void init() throws Exception {
 		// Load all textures
 		GraphicsRoutines.loadTextures();
 		
@@ -208,7 +152,7 @@ public class Voxels {
 		player = new Player();
 		
 		// Create a test (spawn) Chunk
-		spawn = new Chunk(new Vec3f(0, Chunk.getSize() / 2 + player.getHeight(), 0));
+		spawn = new Chunk(new Vec3f(0, 0, 100));
 		
 		// Loop through the Blocks in the Chunk and create a test biome
 		for (int x = 0; x < Chunk.CHUNK_SIZE; ++x) {
@@ -216,13 +160,13 @@ public class Voxels {
 				for (int z = 0; z < Chunk.CHUNK_SIZE; ++z) {
 					if (x == 0) {
 						// Spawn Sand to left
-						spawn.setBlock(x, y, z, new Block(spawn, null, BlockType.Sand));
-					} else if (y == 0) {
+						spawn.setBlock(x, y, z, new Block(spawn, new Vec3f(spawn.getPosition().x - Block.DEFAULT_SIZE * x, spawn.getPosition().y + Block.DEFAULT_SIZE * y, spawn.getPosition().z - Block.DEFAULT_SIZE * z), BlockType.Sand));
+					} else if (y == Chunk.CHUNK_SIZE - 1) {
 						// Spawn Grass on top
-						spawn.setBlock(x, y, z, new Block(spawn, null, BlockType.Grass));
+						spawn.setBlock(x, y, z, new Block(spawn, new Vec3f(spawn.getPosition().x - Block.DEFAULT_SIZE * x, spawn.getPosition().y + Block.DEFAULT_SIZE * y, spawn.getPosition().z - Block.DEFAULT_SIZE * z), BlockType.Grass));
 					} else {
 						// Spawn Dirt below
-						spawn.setBlock(x, y, z, new Block(spawn, null, BlockType.Dirt));
+						spawn.setBlock(x, y, z, new Block(spawn, new Vec3f(spawn.getPosition().x - Block.DEFAULT_SIZE * x, spawn.getPosition().y + Block.DEFAULT_SIZE * y, spawn.getPosition().z - Block.DEFAULT_SIZE * z), BlockType.Dirt));
 					}
 				}
 			}
@@ -232,7 +176,7 @@ public class Voxels {
 		spawn.update();
 	}
 	
-	public void loop() {
+	private void loop() {
 		// Enable 2d textures
 		glEnable(GL_TEXTURE_2D);
 		
@@ -248,39 +192,101 @@ public class Voxels {
 			update();
 		}
 	}
-	
-	public void render() {
+
+	private Vec3f mulPos(Vec3f position, FloatBuffer fb) {
+	    Vec3f output = new Vec3f();
+
+	    output.x = position.x * fb.get(0) + position.y * fb.get(1) + position.z * fb.get(2);
+        output.y = position.x * fb.get(4) + position.y * fb.get(5) + position.z * fb.get(6);
+        output.z = position.x * fb.get(8) + position.y * fb.get(9) + position.z * fb.get(10);
+
+	    return output;
+    }
+
+	private void render() {
 		// Clear the frame buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		// Set the viewport and load the identity matrix
 		glViewport(0, 0, 800, 600);
 		glLoadIdentity();
-		
+
+        glPushMatrix();
+
+        glTranslatef(0, 0, -10);
+
+        // Begin drawing GL_QUADS
+        glBegin(GL_QUADS);
+
+        glColor3f(1.0f, 0.0f, 0.0f);
+
+        // Top left vertex
+        glVertex3f(-0.25f, 0.25f, 0.25f);
+
+        // Top right vertex
+        glVertex3f(0.25f, 0.25f, 0.25f);
+
+        // Bottom right vertex
+        glVertex3f(0.25f, -0.25f, 0.25f);
+
+        // Bottom left vertex
+        glVertex3f(-0.25f, -0.25f, 0.25f);
+
+        glEnd();
+
+        glPopMatrix();
+
 		// Rotate everything according to the player's view
 		glRotatef(player.getRotation().x, 1, 0, 0);
 		glRotatef(player.getRotation().y, 0, 1, 0);
-		
+
+        float distance = 0;
+
+        FloatBuffer fb = BufferUtils.createFloatBuffer(16);
+        GL11.glGetFloatv(GL11.GL_MODELVIEW_MATRIX, fb);
+
+        while (distance < 20) {
+            Vec3f vec = mulPos(new Vec3f(0, 0, distance), fb);
+
+            vec.y = -vec.y;
+
+            vec.add(player.getPosition());
+
+            Block b = spawn.getBlock(vec);
+
+            if (b != null && b.getBlockType() != BlockType.Air && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+                b.setBlockType(BlockType.Air);
+
+                spawn.update();
+
+                break;
+            }
+
+            distance += 0.5f;
+        }
+
+        glColor3f(1, 1, 1);
+
 		// Move to the Chunk's position
 		float xPosition = player.getPosition().x - spawn.getPosition().x;
 		float yPosition = player.getPosition().y - spawn.getPosition().y;
 		float zPosition = player.getPosition().z - spawn.getPosition().z;
-		glTranslatef(xPosition, yPosition, zPosition);
-		
+		glTranslatef(xPosition, -yPosition, zPosition);
+
 		// Render the spawn Chunk
 		spawn.render();
-		
+
 		// Swap the buffers
 		glfwSwapBuffers(window);
 	}
 	
-	public void update() {
+	private void update() {
 		// Poll for any window events
 		glfwPollEvents();
 
 		// Set aside a vector for the change in position
 		Vec3f deltaPosition = new Vec3f();
-		
+
 		// Move the cube based on WASD
 		if (keys[GLFW_KEY_W]) {
 			deltaPosition.z += speed * Math.cos(player.getRotation().y / 180 * Math.PI);
@@ -303,18 +309,43 @@ public class Voxels {
 		}
 		
 		if (keys[GLFW_KEY_SPACE]) {
-			deltaPosition.y -= speed;
-		}
-		
-		if (keys[GLFW_KEY_LEFT_SHIFT]) {
 			deltaPosition.y += speed;
 		}
 		
+		if (keys[GLFW_KEY_LEFT_SHIFT]) {
+			deltaPosition.y -= speed;
+		}
+		
 		// Change the player's position accordingly
-		player.addPosition(deltaPosition);
+		float distance = 0;
+
+        Block b = null;
+        Vec3f tempPosition;
+
+		while (distance < 100 && deltaPosition.length() > 0) {
+            Vec3f tempDelta = new Vec3f(deltaPosition.x, deltaPosition.y, deltaPosition.z);
+
+            tempDelta.normalize();
+
+            tempDelta.mul(distance / 100 * deltaPosition.length());
+            tempPosition = new Vec3f(player.getPosition().x, player.getPosition().y, player.getPosition().z);
+            tempPosition.add(tempDelta);
+
+            b = spawn.getBlock(tempPosition);
+
+            if (b != null && b.getBlockType() != BlockType.Air) {
+                break;
+            }
+
+            distance += 1f;
+        }
+
+        if (b == null || b.getBlockType() == BlockType.Air) {
+            player.addPosition(deltaPosition);
+        }
 		
 		// If the mouse clicks
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS && !mouseLocked) {
 			// Set the cursor position to the center of the window
 			glfwSetCursorPos(window, WIDTH / 2, HEIGHT / 2);
 			
@@ -324,7 +355,7 @@ public class Voxels {
 			// Hide the cursor
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		}
-		
+
 		if (mouseLocked) {
 			// Set aside buffers for the mouse data
 			DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
@@ -340,16 +371,28 @@ public class Voxels {
 			// Get the travel distance of the mouse
 			float deltaX = (float)x.get() - WIDTH / 2;
 			float deltaY = (float)y.get() - HEIGHT / 2;
-			
+
 			// Add rotation accordingly
 			player.addRotation(new Vec3f(deltaY, deltaX, 0));
-			
+
+            if (player.getRotation().x >= 90) {
+                player.setRotation(new Vec3f(90, player.getRotation().y, player.getRotation().z));
+            }
+
+            if (player.getRotation().x <= -90) {
+                player.setRotation(new Vec3f(-90, player.getRotation().y, player.getRotation().z));
+            }
+
+            if (player.getRotation().y >= 360 || player.getRotation().y <= -360) {
+                player.setRotation(new Vec3f(player.getRotation().x, player.getRotation().y % 360, player.getRotation().z));
+            }
+
 			// Set the cursor position back to the center of the window
 			glfwSetCursorPos(window, WIDTH / 2, HEIGHT / 2);
 		}
 	}
 	
-	public void handleKey(long window, int key, int scancode, int action, int mods) {
+	private void handleKey(long window, int key, int scancode, int action, int mods) {
 		// If the user wishes to exit, signal GLFW to do so
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
 			glfwSetWindowShouldClose(window, true);

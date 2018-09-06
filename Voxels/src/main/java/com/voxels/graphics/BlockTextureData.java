@@ -3,25 +3,25 @@ package com.voxels.graphics;
 import com.sun.javafx.geom.Vec2f;
 
 public class BlockTextureData {
-	public static enum BlockFace {
+	public enum BlockFace {
 		Top,
 		Side,
 		Bottom,
 	}
 	
-	private BlockFace face = null;
-	private float xLoc = 0;
-	private float yLoc = 0;
-	private float size = 0;
+	private BlockFace face;
+	private float xLoc;
+	private float yLoc;
+	private float size;
 	
-	public BlockTextureData(String face, String xLoc, String yLoc, String size) {
+	BlockTextureData(String face, String xLoc, String yLoc, String size) {
 		this.face = BlockFace.valueOf(face);
 		this.xLoc = Float.parseFloat(xLoc);
 		this.yLoc = Float.parseFloat(yLoc);
 		this.size = Float.parseFloat(size);
 	}
 	
-	public BlockFace getFace() {
+	BlockFace getFace() {
 		return face;
 	}
 	

@@ -10,67 +10,54 @@ import static org.lwjgl.opengl.GL11.glPopMatrix;
 import static org.lwjgl.opengl.GL11.glPushMatrix;
 import static org.lwjgl.opengl.GL11.glTranslatef;
 
+import com.sun.javafx.geom.Vec3d;
 import com.sun.javafx.geom.Vec3f;
 
 public class Chunk {
-	public static final int CHUNK_SIZE = 16;
+	static final int CHUNK_SIZE = 16;
 	
 	private Block[][][] blocks = null;
 	private int displayList = 0;
 	private Vec3f position = null;
 	
-	public Chunk(Vec3f location) {
+	Chunk(Vec3f location) {
 		blocks = new Block[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
 		position = location;
 	}
 	
-	public static float getSize() {
-		return Block.DEFAULT_SIZE * CHUNK_SIZE;
-	}
-	
-	public Block getBlock(Vec3f location) {
-		// Get the difference locations
-		float deltaX = location.x - position.x;
+	Block getBlock(Vec3f location) {
+	    // Get the difference locations
+		float deltaX = position.x - location.x;
 		float deltaY = location.y - position.y;
-		float deltaZ = location.z - position.z;
-		
-		// If the block is outside the chunk, return null
-		if (Math.abs(deltaX) > getSize() / 2) {
-			return null;
-		} else if (Math.abs(deltaY) > getSize() / 2) {
-			return null;
-		} else if (Math.abs(deltaZ) > getSize() / 2) {
-			return null;
-		}
-		
-		// Compute the index based on location
-		Vec3f index = new Vec3f(location);
-		
-		index.x -= position.x - getSize() / 2;
-		index.y -= position.y - getSize() / 2;
-		index.z -= position.z - getSize() / 2;
-		
-		index.x = index.x % Block.DEFAULT_SIZE;
-		index.y = index.y % Block.DEFAULT_SIZE;
-		index.z = index.z % Block.DEFAULT_SIZE;
-		
-		return blocks[(int)index.x][(int)index.y][(int)index.z];
+		float deltaZ = position.z - location.z;
+
+        deltaX = (int) ((deltaX + (Math.signum(deltaX) > 0 ? 0 : -1) * Block.DEFAULT_SIZE) / Block.DEFAULT_SIZE);
+        deltaY = (int) ((deltaY + (Math.signum(deltaY) > 0 ? 0 : -1) * Block.DEFAULT_SIZE) / Block.DEFAULT_SIZE);
+        deltaZ = (int) ((deltaZ + (Math.signum(deltaZ) > 0 ? 0 : -1) * Block.DEFAULT_SIZE) / Block.DEFAULT_SIZE);
+
+        Vec3f index = new Vec3f(deltaX, deltaY, deltaZ);
+
+        if (index.x >= 0 && index.x < CHUNK_SIZE && index.y >= 0 && index.y < CHUNK_SIZE && index.z >= 0 && index.z < CHUNK_SIZE) {
+            return blocks[(int) index.x][(int) index.y][(int) index.z];
+        } else {
+            return null;
+        }
 	}
-	
+
 	public Block[][][] getBlocks() {
 		return blocks;
 	}
 	
-	public Vec3f getPosition() {
+	Vec3f getPosition() {
 		return position;
 	}
 	
-	public void render() {
+	void render() {
 		// Render the current Chunk by calling the display list
 		glCallList(displayList);
 	}
 	
-	public void setBlock(int x, int y, int z, Block block) {
+	void setBlock(int x, int y, int z, Block block) {
 		// Set the block at location to the given block
 		blocks[x][y][z] = block;
 		
@@ -99,21 +86,21 @@ public class Chunk {
 		
 		if (y > 0) {
 			if (block != null) {
-				block.setTopBlock(blocks[x][y - 1][z]);
+				block.setBottomBlock(blocks[x][y - 1][z]);
 			}
 			
 			if (blocks[x][y - 1][z] != null) {
-				blocks[x][y - 1][z].setBottomBlock(block);
+				blocks[x][y - 1][z].setTopBlock(block);
 			}
 		}
 		
 		if (y < CHUNK_SIZE - 1) {
 			if (block != null) {
-				block.setBottomBlock(blocks[x][y + 1][z]);
+				block.setTopBlock(blocks[x][y + 1][z]);
 			}
 			
 			if (blocks[x][y + 1][z] != null) {
-				blocks[x][y + 1][z].setTopBlock(block);
+				blocks[x][y + 1][z].setBottomBlock(block);
 			}
 		}
 		
@@ -138,7 +125,7 @@ public class Chunk {
 		}
 	}
 	
-	public void update() {
+	void update() {
 		// If the display list exists, delete it
 		if (displayList != 0) {
 			glDeleteLists(displayList, 1);
@@ -159,9 +146,9 @@ public class Chunk {
 						glPushMatrix();
 						
 						// Calculate the Block location in the Chunk
-						float xPos = (x - CHUNK_SIZE / 2) * Block.DEFAULT_SIZE;
-						float yPos = -(y - CHUNK_SIZE / 2) * Block.DEFAULT_SIZE;
-						float zPos = (z - CHUNK_SIZE / 2) * Block.DEFAULT_SIZE;
+                        float xPos = x * Block.DEFAULT_SIZE;
+                        float yPos = y * Block.DEFAULT_SIZE;
+                        float zPos = z * Block.DEFAULT_SIZE;
 						
 						// Translate to the Block location in the Chunk
 						glTranslatef(xPos, yPos, zPos);

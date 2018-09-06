@@ -6,11 +6,11 @@ import com.voxels.Block.BlockType;
 import com.voxels.graphics.BlockTextureData.BlockFace;
 
 public class BlockTexture {
-	public static HashMap<BlockType, BlockTexture> blockTextures = new HashMap<BlockType, BlockTexture>();
+	private static HashMap<BlockType, BlockTexture> blockTextures = new HashMap<BlockType, BlockTexture>();
 	
 	private HashMap<BlockFace, BlockTextureData> blockFaceData = null;
 	
-	public BlockTexture(String blockType) {
+	BlockTexture(String blockType) {
 		// Initialize the face data HashMap
 		blockFaceData = new HashMap<BlockFace, BlockTextureData>();
 		
@@ -22,7 +22,7 @@ public class BlockTexture {
 		return blockTextures.get(type);
 	}
 	
-	public void addFace(BlockTextureData faceData) {
+	void addFace(BlockTextureData faceData) {
 		// Add face data to the current face
 		blockFaceData.put(faceData.getFace(), faceData);
 	}

@@ -18,8 +18,8 @@ import com.voxels.graphics.BlockTextureData;
 import com.voxels.graphics.BlockTextureData.BlockFace;
 
 public class Block {
-	public static final float DEFAULT_SIZE = 5;
-	public static enum BlockType {
+	static final float DEFAULT_SIZE = 5;
+	public enum BlockType {
 		Air,
 		Dirt,
 		Grass,
@@ -34,7 +34,7 @@ public class Block {
 	private Block rightBlock = null;
 	private Block topBlock = null;
 	private Block bottomBlock = null;
-	private BlockType blockType = BlockType.Air;
+	private BlockType blockType;
 	private boolean needsVisibilityUpdate = true;
 	private boolean visible = true;
 	private Chunk parent = null;
@@ -43,7 +43,7 @@ public class Block {
 	private float width = DEFAULT_SIZE;
 	private Vec3f position = null;
 	
-	public Block(Chunk c, Vec3f location, BlockType blockType) {
+	Block(Chunk c, Vec3f location, BlockType blockType) {
 		parent = c;
 		position = location;
 		this.blockType = blockType;
@@ -61,7 +61,7 @@ public class Block {
 		return width;
 	}
 
-	public BlockType getBlockType() {
+	BlockType getBlockType() {
 		return blockType;
 	}
 	
@@ -97,7 +97,7 @@ public class Block {
 		return position;
 	}
 
-	public boolean isVisible() {
+	private boolean isVisible() {
 		// If the Block needs to check its visibility again
 		if (needsVisibilityUpdate) {
 			if (getBlockType() == BlockType.Air) {
@@ -127,7 +127,7 @@ public class Block {
 		return visible;
 	}
 	
-	public void render() {
+	void render() {
 		// Draw only if the block is visible 
 		if (!isVisible()) {
 			return;
@@ -151,109 +151,109 @@ public class Block {
 		if (frontBlock == null || frontBlock.getBlockType() == BlockType.Air) {
 			// Top left vertex
 			glTexCoord2f(sideFace.getTopLeft().x, sideFace.getTopLeft().y);
-			glVertex3f(-width / 2, height / 2, depth / 2);
+			glVertex3f(0, height, depth);
 			
 			// Top right vertex
 			glTexCoord2f(sideFace.getTopRight().x, sideFace.getTopRight().y);
-			glVertex3f(width / 2, height / 2, depth / 2);
+			glVertex3f(width, height, depth);
 			
 			// Bottom right vertex
 			glTexCoord2f(sideFace.getBottomRight().x, sideFace.getBottomRight().y);
-			glVertex3f(width / 2, -height / 2, depth / 2);
+			glVertex3f(width, 0, depth);
 			
 			// Bottom left vertex
 			glTexCoord2f(sideFace.getBottomLeft().x, sideFace.getBottomLeft().y);
-			glVertex3f(-width / 2, -height / 2, depth / 2);
+			glVertex3f(0, 0, depth);
 		}
 		
 		if (backBlock == null || backBlock.getBlockType() == BlockType.Air) {
 			// Top left vertex
 			glTexCoord2f(sideFace.getTopLeft().x, sideFace.getTopLeft().y);
-			glVertex3f(width / 2, height / 2, -depth / 2);
+			glVertex3f(width, height, 0);
 			
 			// Top right vertex
 			glTexCoord2f(sideFace.getTopRight().x, sideFace.getTopRight().y);
-			glVertex3f(-width / 2, height / 2, -depth / 2);
+			glVertex3f(0, height, 0);
 			
 			// Bottom right vertex
 			glTexCoord2f(sideFace.getBottomRight().x, sideFace.getBottomRight().y);
-			glVertex3f(-width / 2, -height / 2, -depth / 2);
+			glVertex3f(0, 0, 0);
 			
 			// Bottom left vertex
 			glTexCoord2f(sideFace.getBottomLeft().x, sideFace.getBottomLeft().y);
-			glVertex3f(width / 2, -height / 2, -depth / 2);
+			glVertex3f(width, 0, 0);
 		}
 		
 		if (leftBlock == null || leftBlock.getBlockType() == BlockType.Air) {
 			// Top left vertex
 			glTexCoord2f(sideFace.getTopLeft().x, sideFace.getTopLeft().y);
-			glVertex3f(-width / 2, height / 2, -depth / 2);
+			glVertex3f(0, height, 0);
 			
 			// Top right vertex
 			glTexCoord2f(sideFace.getTopRight().x, sideFace.getTopRight().y);
-			glVertex3f(-width / 2, height / 2, depth / 2);
+			glVertex3f(0, height, depth);
 			
 			// Bottom right vertex
 			glTexCoord2f(sideFace.getBottomRight().x, sideFace.getBottomRight().y);
-			glVertex3f(-width / 2, -height / 2, depth / 2);
+			glVertex3f(0, 0, depth);
 			
 			// Bottom left vertex
 			glTexCoord2f(sideFace.getBottomLeft().x, sideFace.getBottomLeft().y);
-			glVertex3f(-width / 2, -height / 2, -depth / 2);
+			glVertex3f(0, 0, 0);
 		}
 		
 		if (rightBlock == null || rightBlock.getBlockType() == BlockType.Air) {
 			// Top left vertex
 			glTexCoord2f(sideFace.getTopLeft().x, sideFace.getTopLeft().y);
-			glVertex3f(width / 2, height / 2, depth / 2);
+			glVertex3f(width, height, depth);
 			
 			// Top right vertex
 			glTexCoord2f(sideFace.getTopRight().x, sideFace.getTopRight().y);
-			glVertex3f(width / 2, height / 2, -depth / 2);
+			glVertex3f(width, height, 0);
 			
 			// Bottom right vertex
 			glTexCoord2f(sideFace.getBottomRight().x, sideFace.getBottomRight().y);
-			glVertex3f(width / 2, -height / 2, -depth / 2);
+			glVertex3f(width, 0, 0);
 			
 			// Bottom left vertex
 			glTexCoord2f(sideFace.getBottomLeft().x, sideFace.getBottomLeft().y);
-			glVertex3f(width / 2, -height / 2, depth / 2);
+			glVertex3f(width, 0, depth);
 		}
 		
 		if (topBlock == null || topBlock.getBlockType() == BlockType.Air) {
 			// Top left vertex
 			glTexCoord2f(topFace.getTopLeft().x, topFace.getTopLeft().y);
-			glVertex3f(-width / 2, height / 2, -depth / 2);
+			glVertex3f(0, height, 0);
 			
 			// Top right vertex
 			glTexCoord2f(topFace.getTopRight().x, topFace.getTopRight().y);
-			glVertex3f(width / 2, height / 2, -depth / 2);
+			glVertex3f(width, height, 0);
 			
 			// Bottom right vertex
 			glTexCoord2f(topFace.getBottomRight().x, topFace.getBottomRight().y);
-			glVertex3f(width / 2, height / 2, depth / 2);
+			glVertex3f(width, height, depth);
 			
 			// Bottom left vertex
 			glTexCoord2f(topFace.getBottomLeft().x, topFace.getBottomLeft().y);
-			glVertex3f(-width / 2, height / 2, depth / 2);
+			glVertex3f(0, height, depth);
 		}
 		
 		if (bottomBlock == null || bottomBlock.getBlockType() == BlockType.Air) {
 			// Top left vertex
 			glTexCoord2f(bottomFace.getTopLeft().x, bottomFace.getTopLeft().y);
-			glVertex3f(-width / 2, -height / 2, depth / 2);
+			glVertex3f(0, 0, depth);
 			
 			// Top right vertex
 			glTexCoord2f(bottomFace.getTopRight().x, bottomFace.getTopRight().y);
-			glVertex3f(width / 2, -height / 2, depth / 2);
+			glVertex3f(width, 0, depth);
 			
 			// Bottom right vertex
 			glTexCoord2f(bottomFace.getBottomRight().x, bottomFace.getBottomRight().y);
-			glVertex3f(width / 2, -height / 2, -depth / 2);
+			glVertex3f(width, 0, 0);
 			
 			// Bottom left vertex
 			glTexCoord2f(bottomFace.getBottomLeft().x, bottomFace.getBottomLeft().y);
-			glVertex3f(-width / 2, -height / 2, -depth / 2);
+			glVertex3f(0, 0, 0);
 		}
 		
 		// Stop drawing GL_QUADS
@@ -262,34 +262,67 @@ public class Block {
 		// Stop using the sprite sheet texture
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-	
-	public void setFrontBlock(Block frontBlock) {
+
+	private void triggerVisibilityUpdate() {
+        if (topBlock != null) {
+            this.topBlock.needsVisibilityUpdate = true;
+        }
+
+        if (bottomBlock != null) {
+            this.bottomBlock.needsVisibilityUpdate = true;
+        }
+
+        if (leftBlock != null) {
+            this.leftBlock.needsVisibilityUpdate = true;
+        }
+
+        if (rightBlock != null) {
+            this.rightBlock.needsVisibilityUpdate = true;
+        }
+
+        if (frontBlock != null) {
+            this.frontBlock.needsVisibilityUpdate = true;
+        }
+
+        if (backBlock != null) {
+            this.backBlock.needsVisibilityUpdate = true;
+        }
+    }
+
+	void setFrontBlock(Block frontBlock) {
 		this.frontBlock = frontBlock;
 		needsVisibilityUpdate = true;
 	}
 
-	public void setBackBlock(Block backBlock) {
+	void setBackBlock(Block backBlock) {
 		this.backBlock = backBlock;
 		needsVisibilityUpdate = true;
 	}
 
-	public void setLeftBlock(Block leftBlock) {
+	void setLeftBlock(Block leftBlock) {
 		this.leftBlock = leftBlock;
 		needsVisibilityUpdate = true;
 	}
 
-	public void setRightBlock(Block rightBlock) {
+	void setRightBlock(Block rightBlock) {
 		this.rightBlock = rightBlock;
 		needsVisibilityUpdate = true;
 	}
 
-	public void setTopBlock(Block topBlock) {
+	void setTopBlock(Block topBlock) {
 		this.topBlock = topBlock;
 		needsVisibilityUpdate = true;
 	}
 
-	public void setBottomBlock(Block bottomBlock) {
+	void setBottomBlock(Block bottomBlock) {
 		this.bottomBlock = bottomBlock;
 		needsVisibilityUpdate = true;
+	}
+
+	void setBlockType(BlockType type) {
+		this.blockType = type;
+		needsVisibilityUpdate = true;
+
+		triggerVisibilityUpdate();
 	}
 }

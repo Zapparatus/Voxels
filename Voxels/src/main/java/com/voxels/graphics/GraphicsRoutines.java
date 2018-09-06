@@ -122,7 +122,7 @@ public class GraphicsRoutines {
 		}
 	}
 	
-	public static int loadImage(String path) throws IOException {
+	private static int loadImage(String path) throws IOException {
 		// Load the image using the loadTexture method and reading from the path
 		return loadTexture(ImageIO.read(Thread.currentThread().getContextClassLoader().getResource(path)));
 	}
