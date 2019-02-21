@@ -1,5 +1,3 @@
-
-
 package com.voxels;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -15,10 +13,11 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
-import com.sun.javafx.geom.Vec3f;
 import com.voxels.Block.BlockType;
 import com.voxels.graphics.GraphicsRoutines;
 import org.lwjgl.opengl.GL11;
+
+import com.voxels.math.Vec3f;
 
 public class Voxels {
 	private boolean mouseLocked = false;

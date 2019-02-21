@@ -1,6 +1,6 @@
 package com.voxels.graphics;
 
-import com.sun.javafx.geom.Vec2f;
+import com.voxels.math.Vec2f;
 
 public class BlockTextureData {
 	public enum BlockFace {

@@ -1,6 +1,6 @@
 package com.voxels;
 
-import com.sun.javafx.geom.Vec3f;
+import com.voxels.math.Vec3f;
 
 public class Player {
 	private float height = Block.DEFAULT_SIZE * 2;

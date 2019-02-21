@@ -10,8 +10,7 @@ import static org.lwjgl.opengl.GL11.glPopMatrix;
 import static org.lwjgl.opengl.GL11.glPushMatrix;
 import static org.lwjgl.opengl.GL11.glTranslatef;
 
-import com.sun.javafx.geom.Vec3d;
-import com.sun.javafx.geom.Vec3f;
+import com.voxels.math.Vec3f;
 
 public class Chunk {
 	static final int CHUNK_SIZE = 16;

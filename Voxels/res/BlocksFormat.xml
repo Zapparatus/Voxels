@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Blocks>
 	<Grass>
-		<Top xLoc="0" yLoc="0" Size="0.25"></Top>
-		<Side xLoc="0.25" yLoc="0" Size="0.25"></Side>
-		<Bottom xLoc="0.50" yLoc="0" Size="0.25"></Bottom></Grass>
+		<Top xLoc="0" yLoc="0" Size="0.25" />
+		<Side xLoc="0.25" yLoc="0" Size="0.25" />
+		<Bottom xLoc="0.50" yLoc="0" Size="0.25" />
+	</Grass>
 	<Dirt>
-		<Top xLoc="0" yLoc="0.25" Size="0.25"></Top>
-		<Side xLoc="0.25" yLoc="0.25" Size="0.25"></Side>
-		<Bottom xLoc="0.50" yLoc="0.25" Size="0.25"></Bottom></Dirt>
+		<Top xLoc="0" yLoc="0.25" Size="0.25" />
+		<Side xLoc="0.25" yLoc="0.25" Size="0.25" />
+		<Bottom xLoc="0.50" yLoc="0.25" Size="0.25" />
+	</Dirt>
 	<Sand>
-		<Top xLoc="0" yLoc="0.50" Size="0.25"></Top>
-		<Side xLoc="0.25" yLoc="0.50" Size="0.25"></Side>
-		<Bottom xLoc="0.50" yLoc="0.50" Size="0.25"></Bottom></Sand></Blocks>
+		<Top xLoc="0" yLoc="0.50" Size="0.25" />
+		<Side xLoc="0.25" yLoc="0.50" Size="0.25" />
+		<Bottom xLoc="0.50" yLoc="0.50" Size="0.25" />
+	</Sand>
+</Blocks>

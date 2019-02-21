@@ -12,10 +12,11 @@ import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.opengl.GL11.glVertex3f;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 
-import com.sun.javafx.geom.Vec3f;
 import com.voxels.graphics.BlockTexture;
 import com.voxels.graphics.BlockTextureData;
 import com.voxels.graphics.BlockTextureData.BlockFace;
+
+import com.voxels.math.Vec3f;
 
 public class Block {
 	static final float DEFAULT_SIZE = 5;
